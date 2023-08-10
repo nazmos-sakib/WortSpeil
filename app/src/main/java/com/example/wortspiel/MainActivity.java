@@ -3,28 +3,37 @@ package com.example.wortspiel;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.example.wortspiel.Model.DataHolder;
+import com.example.wortspiel.Model.RandomWordDataHolder;
+import com.example.wortspiel.Model.Word;
 import com.example.wortspiel.Model.Wort;
 import com.example.wortspiel.databinding.ActivityMainBinding;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -38,8 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
     int[] leftColumns = {11,21,31,41,51,61};
     int[] rightColumns = {12,22,32,42,52,62};
-    Map<String,Wort> words;
+    HashMap<String,Word> words;
+    List<Map.Entry<String, Word>> entries;
 
+    int numberOfCurrentAns = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,22 +62,71 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         Objects.requireNonNull(getSupportActionBar()).hide();
 
+        //calling singleton data which was created in FirstHit
+        Multimap<String, Word> wordList = DataHolder.getWordList();
+        Log.d(TAG, "onCreate: " +  wordList.keys().getClass().getName());
+
+        // Convert the Multimap to a List of Map.Entry objects
+        entries = new ArrayList<>(wordList.entries());
+
+
         //view binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
+
         //data create
-        ArrayList<Wort> data = GenerateSampleData.getData();
-        //Map<Integer,Wort> word = new  HashMap<>();
+        /*ArrayList<Wort> data = GenerateSampleData.getData();
+        Map<Integer,Wort> word = new  HashMap<>();
         words = new  HashMap<>();
 
         for (int i=0;i<data.size();i++){
             words.put(data.get(i).getGermanWord(),data.get(i));
-        }
+        }*/
 
 
 
         //start story point1 (one button select other not select) -----------
+        initButtons();
+        // end story point1
+
+        //start story point2(assigning to buttons)--------------------------------
+        //step 1: shuffle button left column and right column
+        //step 2: generate 6 random number list within the data size
+        //step 3: create a new variable to hold six new random words
+        //step 4: assign them in button
+        doMagic();
+        //end story point2
+
+        //start story point3 (Mapping right and wrong button)-------------------------------
+
+        //end story point3
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    public void initButtons(){
+        //Floating action buttons
+        binding.fabRefreshList.setOnClickListener(View->{
+            buttonResetBackgroundColor();
+            doMagic();
+        });
+
+        //details
+        binding.fabWordDetails.setOnClickListener(View->{
+            Intent intent = new Intent(this, WordDetails.class);
+            intent.putExtra("words",words);
+            startActivity(intent);
+        });
         // left columns -----------------------------
         binding.button11.setOnClickListener(View->{
             if (binding.button11 == leftSelectedButton) {
@@ -374,31 +434,36 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-        // end story point1
 
-        //start story point2(assigning to buttons)--------------------------------
+    }
 
-        //shuffle columns
+    private void doMagic(){
+
+        //step 1: shuffle columns
         Integer[] leftColumn =shuffleArray(new Integer[]{11,21,31,41,51,61});
         Integer[] rightColumn =shuffleArray(new Integer[]{12,22,32,42,52,62});
 
-        // assigning into buttons
-        /*word.forEach((i,w)->{
-            getButtonByNumber(leftColumn[i]).setText(w.getGermanWord());
-            getButtonByNumber(rightColumn[i]).setText(w.getEnglishMeaning());
-        });*/
-        Object[] key = words.keySet().toArray();
+        //step 2: generateUniqueRandomNumbers()
+        //step 3: generateRandomWords() that takes list of random number
+        /*generateRandomWords(
+                generateUniqueRandomNumbers(
+                        (entries.size()>6)?entries.size():6
+                )
+        );*/
+
+        List<Integer> randomEntries = generateUniqueRandomNumbers((entries.size()>6)?entries.size():6);
+
+        words = new HashMap<>();
+        //Object[] key = words.keySet().toArray();
         for (int i =0;i<leftColumn.length;i++){
-            getButtonByNumber(leftColumn[i]).setText( words.get(key[i]).getGermanWord());
+            /*getButtonByNumber(leftColumn[i]).setText( words.get(key[i]).getGermanWord());
             getButtonByNumber(rightColumn[i]).setText(words.get(key[i]).getEnglishMeaning());
+            */
+            words.put(entries.get(randomEntries.get(i)).getKey(),entries.get(randomEntries.get(i)).getValue());
+
+            getButtonByNumber(leftColumn[i]).setText(entries.get(randomEntries.get(i)).getValue().getGermanWord() );
+            getButtonByNumber(rightColumn[i]).setText(entries.get(randomEntries.get(i)).getValue().getEnglishMeaning());
         }
-
-        //end story point2
-
-        //start story point3 (Mapping right and wrong button)-------------------------------
-
-        //end story point3
-
     }
 
     private void checkCorrectAnswer()  {
@@ -410,13 +475,12 @@ public class MainActivity extends AppCompatActivity {
                      .getEnglishMeaning()
                      .equals(rightSelectedButton.getText())){
 
+                 ++numberOfCurrentAns;
+
                  leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_complete));
                  rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_complete));
                  leftSelectedButton.setOnClickListener(null);
                  rightSelectedButton.setOnClickListener(null);
-
-                 leftSelectedButton= null;
-                 rightSelectedButton=null;
 
              } else {// wrong word mapping
 
@@ -443,15 +507,118 @@ public class MainActivity extends AppCompatActivity {
                  leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
                  rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
 
-                 leftSelectedButton= null;
-                 rightSelectedButton=null;
              }
+             //for both case wrong answer or right answer reset selected button
+            leftSelectedButton= null;
+            rightSelectedButton=null;
 
-
-
+            if (numberOfCurrentAns>5){
+                numberOfCurrentAns = 0;
+                buttonResetBackgroundColor();
+                doMagic();
+                initButtons();
+            }
 
         }
     }
+
+    private Button getButtonByNumber(int n){
+        switch (n){
+            case 11:
+                return binding.button11;
+            case 12:
+                return binding.button12;
+            case 21:
+                return binding.button21;
+            case 22:
+                return binding.button22;
+            case 31:
+                return binding.button31;
+            case 32:
+                return binding.button32;
+            case 41:
+                return binding.button41;
+            case 42:
+                return binding.button42;
+            case 51:
+                return binding.button51;
+            case 52:
+                return binding.button52;
+            case 61:
+                return binding.button61;
+            case 62:
+                return binding.button62;
+            default:
+                return null;
+        }
+    }
+
+    private Integer[] shuffleArray(Integer [] intArray){
+        List<Integer> intList = Arrays.asList(intArray);
+        Collections.shuffle(intList);
+        return intList.toArray(intArray);
+    }
+
+    private List<Integer> generateUniqueRandomNumbers(int maxValue){
+        Set<Integer> uniqueNumbers = new HashSet<>();
+        Random random = new Random();
+
+        while (uniqueNumbers.size() < 6) {
+            int randomValue = random.nextInt(maxValue) + 1;
+            uniqueNumbers.add(randomValue);
+        }
+        return new ArrayList<>(uniqueNumbers);
+    }
+
+    private void generateRandomWords(List<Integer> randomEntries){
+        Map<Integer,Word> words = new HashMap<>();
+        for (int i=0;i<randomEntries.size();i++){
+            words.put(i,entries.get(randomEntries.get(i)).getValue());
+        }
+        //RandomWordDataHolder.setWordList(words);
+    }
+
+    private void buttonResetBackgroundColor(){
+        binding.button11.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button12.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button21.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button22.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button31.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button32.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button41.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button42.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button51.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button52.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button61.setBackground(getDrawable(R.drawable.button_style_normal));
+        binding.button62.setBackground(getDrawable(R.drawable.button_style_normal));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void toggleBackground(Button button){
         Drawable normal = getDrawable(R.drawable.button_style_normal);
@@ -495,43 +662,6 @@ public class MainActivity extends AppCompatActivity {
             drawable.draw(canvas);
         }
         return result;
-    }
-
-    private Button getButtonByNumber(int n){
-        switch (n){
-            case 11:
-                return binding.button11;
-            case 12:
-                return binding.button12;
-            case 21:
-                return binding.button21;
-            case 22:
-                return binding.button22;
-            case 31:
-                return binding.button31;
-            case 32:
-                return binding.button32;
-            case 41:
-                return binding.button41;
-            case 42:
-                return binding.button42;
-            case 51:
-                return binding.button51;
-            case 52:
-                return binding.button52;
-            case 61:
-                return binding.button61;
-            case 62:
-                return binding.button62;
-            default:
-                return null;
-        }
-    }
-
-    private Integer[] shuffleArray(Integer [] intArray){
-        List<Integer> intList = Arrays.asList(intArray);
-        Collections.shuffle(intList);
-        return intList.toArray(intArray);
     }
 
 }
