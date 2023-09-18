@@ -1,162 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:id="@+id/parentDrawerLayout"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/mainConstraint"
+        >
 
 
-    <TableLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TableRow
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/RowStyle">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <Button
-                android:id="@+id/button11"
-                style="@style/ButtonStyle.left"
-                android:background="@drawable/button_style_normal"
-                android:text="Button"
+            <include
+                android:id="@+id/include_toolbox"
+                layout="@layout/toolbar"
                 />
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/button12"
-                style="@style/ButtonStyle"
-                android:background="@drawable/button_style_normal"
-                android:text="Button"/>
-        </TableRow>
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/RowStyle">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RowStyle">
 
-            <Button
-                android:id="@+id/button21"
-                style="@style/ButtonStyle.left"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
+                <Button
+                    android:id="@+id/button11"
+                    style="@style/ButtonStyle.left"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button"
+                    />
 
-            <Button
-                android:id="@+id/button22"
-                style="@style/ButtonStyle"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
-        </TableRow>
+                <Button
+                    android:id="@+id/button12"
+                    style="@style/ButtonStyle"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button"/>
+            </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/RowStyle">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RowStyle">
 
-            <Button
-                android:id="@+id/button31"
-                style="@style/ButtonStyle.left"
-                android:background="@drawable/button_style_normal"
-                android:text="Button"/>
+                <Button
+                    android:id="@+id/button21"
+                    style="@style/ButtonStyle.left"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
 
-            <Button
-                android:id="@+id/button32"
-                style="@style/ButtonStyle"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
-        </TableRow>
+                <Button
+                    android:id="@+id/button22"
+                    style="@style/ButtonStyle"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
+            </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/RowStyle">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RowStyle">
 
-            <Button
-                android:id="@+id/button41"
-                style="@style/ButtonStyle.left"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
+                <Button
+                    android:id="@+id/button31"
+                    style="@style/ButtonStyle.left"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button"/>
 
-            <Button
-                android:id="@+id/button42"
-                style="@style/ButtonStyle"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
-        </TableRow>
+                <Button
+                    android:id="@+id/button32"
+                    style="@style/ButtonStyle"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
+            </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/RowStyle">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RowStyle">
 
-            <Button
-                android:id="@+id/button51"
-                style="@style/ButtonStyle.left"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
+                <Button
+                    android:id="@+id/button41"
+                    style="@style/ButtonStyle.left"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
 
-            <Button
-                android:id="@+id/button52"
-                style="@style/ButtonStyle"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
-        </TableRow>
+                <Button
+                    android:id="@+id/button42"
+                    style="@style/ButtonStyle"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
+            </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="@style/RowStyle">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RowStyle">
 
-            <Button
-                android:id="@+id/button61"
-                style="@style/ButtonStyle.left"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
+                <Button
+                    android:id="@+id/button51"
+                    style="@style/ButtonStyle.left"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
 
-            <Button
-                android:id="@+id/button62"
-                style="@style/ButtonStyle"
-                android:background="@drawable/button_style_normal"
-                android:text="Button" />
-        </TableRow>
-    </TableLayout>
+                <Button
+                    android:id="@+id/button52"
+                    style="@style/ButtonStyle"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
+            </TableRow>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_refreshList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="84dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:borderWidth="0dp"
-        app:elevation="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_baseline_refresh_24"
-        tools:ignore="SpeakableTextPresentCheck"
-        app:tint="#7CB342"/>
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RowStyle">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_wordDetails"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:borderWidth="0dp"
-        app:elevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_live_help_24"
-        app:tint="@color/white"
-        android:focusable="true" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <Button
+                    android:id="@+id/button61"
+                    style="@style/ButtonStyle.left"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
+
+                <Button
+                    android:id="@+id/button62"
+                    style="@style/ButtonStyle"
+                    android:background="@drawable/button_style_normal"
+                    android:text="Button" />
+            </TableRow>
+        </TableLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_refreshList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="84dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            app:backgroundTint="@android:color/transparent"
+            app:borderWidth="0dp"
+            app:elevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_baseline_refresh_24"
+            tools:ignore="SpeakableTextPresentCheck"
+            app:tint="#7CB342"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_wordDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            app:backgroundTint="@android:color/transparent"
+            app:borderWidth="0dp"
+            app:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_live_help_24"
+            app:tint="@color/white" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <RelativeLayout
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/white"
+        >
+        <include
+            layout="@layout/nav_drawer"
+            android:id="@+id/include_nav_drawer"
+            />
+
+    </RelativeLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

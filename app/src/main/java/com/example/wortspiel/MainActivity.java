@@ -2,12 +2,20 @@ package com.example.wortspiel;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -16,15 +24,22 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.wortspiel.Model.DataHolder;
+import com.example.wortspiel.Model.NetworkTask;
+import com.example.wortspiel.Model.Pronunciation;
 import com.example.wortspiel.Model.RandomWordDataHolder;
+import com.example.wortspiel.Model.Utility;
 import com.example.wortspiel.Model.Word;
 import com.example.wortspiel.Model.Wort;
 import com.example.wortspiel.databinding.ActivityMainBinding;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,6 +67,12 @@ public class MainActivity extends AppCompatActivity {
 
     int numberOfCurrentAns = 0;
 
+    //sound
+    private SoundPool soundPool;
+    private int soundB1,soundB2,soundB3,soundB4,soundB5,soundB6;
+    MediaPlayer mediaPlayer;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +94,11 @@ public class MainActivity extends AppCompatActivity {
         //view binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        //app drawer setup
+        binding.includeToolbox.menuToolbox.setOnClickListener(View->{
+            openDrawer(binding.parentDrawerLayout);
+        });
 
 
 
@@ -103,11 +129,36 @@ public class MainActivity extends AppCompatActivity {
 
         //end story point3
 
-    }
+        //story point 4 (play sound)-------------------------------
+
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ){
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION )
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+            soundPool = new  SoundPool.Builder()
+                    .setMaxStreams(6)
+                    .setAudioAttributes(audioAttributes)
+                    .build();
+        } else {
+            soundPool = new SoundPool(6, AudioManager.STREAM_MUSIC,0);  //stream_music means if headPhone is connected play in headPhone
+        }
+
+        soundB1 = soundPool.load(this, R.raw.water_pouring_a,1);
+
+
+        //end story point 4
+
+    }  //end onCreate()
+
+
 
     @Override
     protected void onPause() {
         super.onPause();
+        closeDrawer(binding.parentDrawerLayout);
     }
     @Override
     protected void onResume() {
@@ -122,13 +173,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //details
-        binding.fabWordDetails.setOnClickListener(View->{
+        binding.includeToolbox.imvWordDetailsToolbar.setOnClickListener(View->{
             Intent intent = new Intent(this, WordDetails.class);
             intent.putExtra("words",words);
             startActivity(intent);
         });
         // left columns -----------------------------
         binding.button11.setOnClickListener(View->{
+            //story point 4 -----------------------------
+            playPronunciation(binding.button11);
+            //end
+            //soundPool.play(soundB1,1,1,0,0,1);
             if (binding.button11 == leftSelectedButton) {
                 // Deselect the button
                 binding.button11.setSelected(false);
@@ -593,6 +648,58 @@ public class MainActivity extends AppCompatActivity {
         binding.button62.setBackground(getDrawable(R.drawable.button_style_normal));
     }
 
+    private void openDrawer(DrawerLayout drawerLayout){
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+    private void closeDrawer(DrawerLayout drawerLayout){
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    void playPronunciation(Button btn){
+
+        if (Utility.isNetworkAvailable(getApplicationContext())){
+            System.out.println(btn.getText().toString());
+            new NetworkTask(btn.getText().toString(),
+                    src->{
+                        System.out.println(src);
+                        mediaPlayer = new MediaPlayer();
+                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+                        try {
+                            mediaPlayer.setDataSource(src.toString());
+                            // below line is use to prepare
+                            // and start our media player.
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        // below line is use to display a toast message.
+                        Toast.makeText(this, "Audio started playing..", Toast.LENGTH_SHORT).show();
+
+                    }).execute();
+
+        } else {
+            Snackbar snackbar = Snackbar
+                    .make(btn, "no internet connection.\nconnect to internet to hear pronunciation!", Snackbar.LENGTH_LONG)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                        }
+                    });
+            snackbar.setActionTextColor(Color.RED);
+            View sbView = snackbar.getView();
+            /*TextView textView = (TextView) sbView.findViewById(android.support.v4.app.);
+            textView.setTextColor(Color.YELLOW);*/
+            snackbar.show();
+        }
+
+
+    }
 
 
 
@@ -664,4 +771,10 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        soundPool.release();
+        soundPool = null;
+    }
 }

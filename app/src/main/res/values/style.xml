@@ -22,4 +22,19 @@
 
 
 
+    <style name="NavDrawer" >
+    </style>
+
+
+    <style name="NavDrawer.TxtView" >
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:textColor">@color/lavender</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop"> 6dp </item>
+        <item name="android:layout_marginBottom"> 6dp </item>
+    </style>
+
+
+
 </resources>

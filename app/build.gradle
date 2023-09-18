@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.wortspiel"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -28,6 +28,10 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    packagingOptions {
+        exclude "META-INF/DEPENDENCIES"
+    }
 }
 
 dependencies {
@@ -44,5 +48,21 @@ dependencies {
     implementation group: 'com.google.collections', name: 'google-collections', version: '1.0-rc2'
 
     // Serialize MultiMap
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    //web scraping
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'org.jsoup:jsoup:1.14.3'
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
+    //implementation 'net.sourceforge.htmlunit:htmlunit:2.52.0' // Replace with the latest version
+
+    //
+    //implementation 'org.objenesis:objenesis:3.2'
+
+    //java.lang.NoSuchFieldError: No static field INSTANCE of type Lorg/apache/http/conn/ssl/AllowAllHostnameVerifier; in class Lorg/apache/http/conn/ssl/AllowAllHostnameVerifier; or its superclasses (declaration of 'org.apache.http.conn.ssl.AllowAllHostnameVerifier' appears in /system/framework/framework.jar!classes4.dex)
+    implementation("net.sourceforge.htmlunit:htmlunit-android:2.63.0")
+
+
+
 }
