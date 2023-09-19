@@ -5,10 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
@@ -24,22 +24,15 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.wortspiel.Model.AudioDownloadTracker;
 import com.example.wortspiel.Model.DataHolder;
-import com.example.wortspiel.Model.NetworkTask;
-import com.example.wortspiel.Model.Pronunciation;
-import com.example.wortspiel.Model.RandomWordDataHolder;
+import com.example.wortspiel.Model.Sound;
 import com.example.wortspiel.Model.Utility;
 import com.example.wortspiel.Model.Word;
-import com.example.wortspiel.Model.Wort;
 import com.example.wortspiel.databinding.ActivityMainBinding;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multiset;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,7 +43,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity->";
@@ -62,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
     int[] leftColumns = {11,21,31,41,51,61};
     int[] rightColumns = {12,22,32,42,52,62};
-    HashMap<String,Word> words;
+    HashMap<Integer,Word> words;
     List<Map.Entry<String, Word>> entries;
 
-    int numberOfCurrentAns = 0;
+    int numberOfCorrectAns = 0;
 
     //sound
     private SoundPool soundPool;
@@ -125,14 +117,24 @@ public class MainActivity extends AppCompatActivity {
         doMagic();
         //end story point2
 
-        //start story point3 (Mapping right and wrong button)-------------------------------
-
+        //start story point3 (Mapping right and left button)-------------------------------
+        //step 1: check if one button from both side is selected
+        //step 2: if selected button has correct mapping
+                //step 3: increase number of correct answer
+                //step 4: disable this two button
+        //step 5: if the answer is wrong
+                //step 6: show a alert dialog
+                //step 7: halt all execution for 800ms
+                //step 8: set button background to default
+        //step 9: deselect both button
+        //step 10: if number of correct answer is more then 5
+                // step 11: set all button background to default
+                // step 12: get new dataset
+                // step 13: set onclick listener to buttons
+        //checkCorrectAnswer()
         //end story point3
 
         //story point 4 (play sound)-------------------------------
-
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ){
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION )
@@ -147,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         soundB1 = soundPool.load(this, R.raw.water_pouring_a,1);
-
-
         //end story point 4
 
     }  //end onCreate()
@@ -174,405 +174,127 @@ public class MainActivity extends AppCompatActivity {
 
         //details
         binding.includeToolbox.imvWordDetailsToolbar.setOnClickListener(View->{
-            Intent intent = new Intent(this, WordDetails.class);
-            intent.putExtra("words",words);
-            startActivity(intent);
+            Log.d(TAG, "initButtons: AudioDownloadTracker-> "+AudioDownloadTracker.getValue());
+            if (AudioDownloadTracker.getValue()>=6){
+                Intent intent = new Intent(this, WordDetails.class);
+                intent.putExtra("words",words);
+                startActivity(intent);
+            }
         });
         // left columns -----------------------------
-        binding.button11.setOnClickListener(View->{
-            //story point 4 -----------------------------
-            playPronunciation(binding.button11);
-            //end
-            //soundPool.play(soundB1,1,1,0,0,1);
-            if (binding.button11 == leftSelectedButton) {
-                // Deselect the button
-                binding.button11.setSelected(false);
-                binding.button11.setBackground(getDrawable(R.drawable.button_style_normal));
-                leftSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (leftSelectedButton != null) {
-                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-                    leftSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button11.setSelected(true);
-                binding.button11.setBackground(getDrawable(R.drawable.button_style_on_select));
-                leftSelectedButton = binding.button11;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button21.setOnClickListener(View->{
-            if (binding.button21 == leftSelectedButton) {
-                // Deselect the button
-                binding.button21.setSelected(false);
-                binding.button21.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                leftSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (leftSelectedButton != null) {
-                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    leftSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button21.setSelected(true);
-                binding.button21.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                leftSelectedButton = binding.button21;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button31.setOnClickListener(View->{
-            if (binding.button31 == leftSelectedButton) {
-                // Deselect the button
-                binding.button31.setSelected(false);
-                binding.button31.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                leftSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (leftSelectedButton != null) {
-                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    leftSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button31.setSelected(true);
-                binding.button31.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                leftSelectedButton = binding.button31;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button41.setOnClickListener(View->{
-            if (binding.button41 == leftSelectedButton) {
-                // Deselect the button
-                binding.button41.setSelected(false);
-                binding.button41.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                leftSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (leftSelectedButton != null) {
-                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    leftSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button41.setSelected(true);
-                binding.button41.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                leftSelectedButton = binding.button41;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button51.setOnClickListener(View->{
-            if (binding.button51 == leftSelectedButton) {
-                // Deselect the button
-                binding.button51.setSelected(false);
-                binding.button51.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                leftSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (leftSelectedButton != null) {
-                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    leftSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button51.setSelected(true);
-                binding.button51.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                leftSelectedButton = binding.button51;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button61.setOnClickListener(View->{
-            if (binding.button61 == leftSelectedButton) {
-                // Deselect the button
-                binding.button61.setSelected(false);
-                binding.button61.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                leftSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (leftSelectedButton != null) {
-                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    leftSelectedButton.setSelected(false);
-                }
-                // Select the clicked button
-                binding.button61.setSelected(true);
-                binding.button61.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                leftSelectedButton = binding.button61;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
 
         // right columns ----------------------------
-        binding.button12.setOnClickListener(View->{
-            if (binding.button12 == rightSelectedButton) {
-                // Deselect the button
-                binding.button12.setSelected(false);
-                binding.button12.setBackground(getDrawable(R.drawable.button_style_normal));
-                rightSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (rightSelectedButton != null) {
-                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-                    rightSelectedButton.setSelected(false);
-                }
+        initGameButtons();
+    }
 
-                // Select the clicked button
-                binding.button12.setSelected(true);
-                binding.button12.setBackground(getDrawable(R.drawable.button_style_on_select));
-                rightSelectedButton = binding.button12;
-                //look for correct solution
-                checkCorrectAnswer();
+    void initGameButtons(){
+        //left column
+        addClickListenerToButton(binding.button11,true);
+        addClickListenerToButton(binding.button21,true);
+        addClickListenerToButton(binding.button31,true);
+        addClickListenerToButton(binding.button41,true);
+        addClickListenerToButton(binding.button51,true);
+        addClickListenerToButton(binding.button61,true);
 
-            }
-
-        });
-        binding.button22.setOnClickListener(View->{
-            if (binding.button22 == rightSelectedButton) {
-                // Deselect the button
-                binding.button22.setSelected(false);
-                binding.button22.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                rightSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (rightSelectedButton != null) {
-                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    rightSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button22.setSelected(true);
-                binding.button22.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                rightSelectedButton = binding.button22;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button32.setOnClickListener(View->{
-            if (binding.button32 == rightSelectedButton) {
-                // Deselect the button
-                binding.button32.setSelected(false);
-                binding.button32.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                rightSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (rightSelectedButton != null) {
-                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    rightSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button32.setSelected(true);
-                binding.button32.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                rightSelectedButton = binding.button32;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button42.setOnClickListener(View->{
-            if (binding.button42 == rightSelectedButton) {
-                // Deselect the button
-                binding.button42.setSelected(false);
-                binding.button42.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                rightSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (rightSelectedButton != null) {
-                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    rightSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button42.setSelected(true);
-                binding.button42.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                rightSelectedButton = binding.button42;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button52.setOnClickListener(View->{
-            if (binding.button52 == rightSelectedButton) {
-                // Deselect the button
-                binding.button52.setSelected(false);
-                binding.button52.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                rightSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (rightSelectedButton != null) {
-                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    rightSelectedButton.setSelected(false);
-                }
-
-                // Select the clicked button
-                binding.button52.setSelected(true);
-                binding.button52.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                rightSelectedButton = binding.button52;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-        binding.button62.setOnClickListener(View->{
-            if (binding.button62 == rightSelectedButton) {
-                // Deselect the button
-                binding.button62.setSelected(false);
-                binding.button62.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                rightSelectedButton = null;
-            } else {
-                // Deselect the previously selected button (if any)
-                if (rightSelectedButton != null) {
-                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-
-                    rightSelectedButton.setSelected(false);
-                }
-                // Select the clicked button
-                binding.button62.setSelected(true);
-                binding.button62.setBackground(getDrawable(R.drawable.button_style_on_select));
-
-                rightSelectedButton = binding.button62;
-                //look for correct solution
-                checkCorrectAnswer();
-
-            }
-
-        });
-
+        //right column
+        addClickListenerToButton(binding.button12,false);
+        addClickListenerToButton(binding.button22,false);
+        addClickListenerToButton(binding.button32,false);
+        addClickListenerToButton(binding.button42,false);
+        addClickListenerToButton(binding.button52,false);
+        addClickListenerToButton(binding.button62,false);
     }
 
     private void doMagic(){
+        AudioDownloadTracker.reset();
 
         //step 1: shuffle columns
-        Integer[] leftColumn =shuffleArray(new Integer[]{11,21,31,41,51,61});
-        Integer[] rightColumn =shuffleArray(new Integer[]{12,22,32,42,52,62});
-
-        //step 2: generateUniqueRandomNumbers()
-        //step 3: generateRandomWords() that takes list of random number
-        /*generateRandomWords(
-                generateUniqueRandomNumbers(
-                        (entries.size()>6)?entries.size():6
-                )
-        );*/
+        Integer[] leftColumn = shuffleArray(new Integer[]{11,21,31,41,51,61});
+        Integer[] rightColumn = shuffleArray(new Integer[]{12,22,32,42,52,62});
 
         List<Integer> randomEntries = generateUniqueRandomNumbers((entries.size()>6)?entries.size():6);
 
         words = new HashMap<>();
         //Object[] key = words.keySet().toArray();
         for (int i =0;i<leftColumn.length;i++){
-            /*getButtonByNumber(leftColumn[i]).setText( words.get(key[i]).getGermanWord());
-            getButtonByNumber(rightColumn[i]).setText(words.get(key[i]).getEnglishMeaning());
-            */
-            words.put(entries.get(randomEntries.get(i)).getKey(),entries.get(randomEntries.get(i)).getValue());
-
+            words.put(leftColumn[i],entries.get(randomEntries.get(i)).getValue());
             getButtonByNumber(leftColumn[i]).setText(entries.get(randomEntries.get(i)).getValue().getGermanWord() );
             getButtonByNumber(rightColumn[i]).setText(entries.get(randomEntries.get(i)).getValue().getEnglishMeaning());
         }
+
+        //get pronunciation url
+        words.forEach((key,value)->{
+            Utility.getPronunciationUrl(
+                    getApplicationContext(),
+                    getButtonByNumber(key),
+                    (url)->{
+                        AudioDownloadTracker.increase();
+                        if (url!=null){
+                            value.setPronunciation(new Sound(url.toString()));
+                        }
+                    });
+        });
     }
 
     private void checkCorrectAnswer()  {
         if (leftSelectedButton!=null  && rightSelectedButton!=null){
 
-            // correct word mapping
-             if(words
-                     .get(leftSelectedButton.getText())
-                     .getEnglishMeaning()
-                     .equals(rightSelectedButton.getText())){
+            if (getClickedButtonId(leftSelectedButton.getId())!=null){
 
-                 ++numberOfCurrentAns;
+                Word word = words.get(getClickedButtonId(leftSelectedButton.getId()));
 
-                 leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_complete));
-                 rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_complete));
-                 leftSelectedButton.setOnClickListener(null);
-                 rightSelectedButton.setOnClickListener(null);
+                // correct word mapping
+                if(word.getGermanWord().equals(leftSelectedButton.getText()) &&
+                    word.getEnglishMeaning()
+                        .equals(rightSelectedButton.getText())){
 
-             } else {// wrong word mapping
+                    ++numberOfCorrectAns;
 
-                 AlertDialog wrongAnswerDialog = new AlertDialog.Builder(this)
-                         .create();
+                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_complete));
+                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_complete));
+                    leftSelectedButton.setOnClickListener(null);
+                    rightSelectedButton.setOnClickListener(null);
 
-                 // Inflate the view containing the EditText and Button
-                 LayoutInflater inflater = LayoutInflater.from(this);
-                 View view = inflater.inflate(R.layout.alartdialog_warning, null);
+                } else {// wrong word mapping
 
-                 wrongAnswerDialog.setView(view);
-                 // Create and show the AlertDialog
-                 wrongAnswerDialog.show();
+                    AlertDialog wrongAnswerDialog = new AlertDialog.Builder(this)
+                            .create();
 
-                 new Handler().postDelayed(new Runnable() {
-                     @Override
-                     public void run() {
-                         // do stuff
-                         wrongAnswerDialog.dismiss();
-                     }
-                 }, 800);
+                    // Inflate the view containing the EditText and Button
+                    LayoutInflater inflater = LayoutInflater.from(this);
+                    View view = inflater.inflate(R.layout.alartdialog_warning, null);
 
+                    wrongAnswerDialog.setView(view);
+                    // Create and show the AlertDialog
+                    wrongAnswerDialog.show();
+                    //step 7: halt all execution for 800ms
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // do stuff
+                            wrongAnswerDialog.dismiss();
+                        }
+                    }, 800);
 
-                 leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
-                 rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
+                    //step 8: set button background to default
+                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
+                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
 
-             }
-             //for both case wrong answer or right answer reset selected button
-            leftSelectedButton= null;
-            rightSelectedButton=null;
+                }
+                //step 8: deselect both button
+                //for both case wrong answer or right answer reset selected button
+                leftSelectedButton= null;
+                rightSelectedButton=null;
 
-            if (numberOfCurrentAns>5){
-                numberOfCurrentAns = 0;
-                buttonResetBackgroundColor();
-                doMagic();
-                initButtons();
+                //step 10:
+                if (numberOfCorrectAns>5){
+                    numberOfCorrectAns = 0;
+                    buttonResetBackgroundColor();
+                    doMagic();
+                    initGameButtons();
+                }
             }
+
 
         }
     }
@@ -603,6 +325,32 @@ public class MainActivity extends AppCompatActivity {
                 return binding.button61;
             case 62:
                 return binding.button62;
+            default:
+                return null;
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private Integer getClickedButtonId(int n){
+        switch (n){
+            case R.id.button11:
+                return 11;
+
+            case R.id.button21:
+                return 21;
+
+            case R.id.button31:
+                return 31;
+
+            case R.id.button41:
+                return 41;
+
+            case R.id.button51:
+                return 51;
+
+            case R.id.button61:
+                return 61;
+
             default:
                 return null;
         }
@@ -658,46 +406,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void playPronunciation(Button btn){
+    void addClickListenerToButton(Button btn, boolean isLeftBtn){
+        btn.setOnClickListener(View-> {
+            if ((btn == leftSelectedButton) || (btn == rightSelectedButton)) {
+                // Deselect the button
+                btn.setSelected(false);
+                btn.setBackground(getDrawable(R.drawable.button_style_normal));
 
-        if (Utility.isNetworkAvailable(getApplicationContext())){
-            System.out.println(btn.getText().toString());
-            new NetworkTask(btn.getText().toString(),
-                    src->{
-                        System.out.println(src);
-                        mediaPlayer = new MediaPlayer();
-                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                leftSelectedButton = isLeftBtn ? null : leftSelectedButton;
+                rightSelectedButton = !isLeftBtn ? null : rightSelectedButton;
+            } else {
+                // Deselect the previously selected button (if any)
+                if (leftSelectedButton != null && isLeftBtn) {
+                    leftSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
+                    leftSelectedButton.setSelected(false);
+                } else if (rightSelectedButton != null && !isLeftBtn) {
+                    rightSelectedButton.setBackground(getDrawable(R.drawable.button_style_normal));
+                    rightSelectedButton.setSelected(false);
+                }
 
-                        try {
-                            mediaPlayer.setDataSource(src.toString());
-                            // below line is use to prepare
-                            // and start our media player.
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
 
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        // below line is use to display a toast message.
-                        Toast.makeText(this, "Audio started playing..", Toast.LENGTH_SHORT).show();
+                // Select the clicked button
+                btn.setSelected(true);
+                btn.setBackground(getDrawable(R.drawable.button_style_on_select));
 
-                    }).execute();
+                leftSelectedButton = isLeftBtn ? btn : leftSelectedButton;
+                rightSelectedButton = !isLeftBtn ? btn : rightSelectedButton;
+                //look for correct solution
+                checkCorrectAnswer();
 
-        } else {
-            Snackbar snackbar = Snackbar
-                    .make(btn, "no internet connection.\nconnect to internet to hear pronunciation!", Snackbar.LENGTH_LONG)
-                    .setAction("RETRY", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                        }
-                    });
-            snackbar.setActionTextColor(Color.RED);
-            View sbView = snackbar.getView();
-            /*TextView textView = (TextView) sbView.findViewById(android.support.v4.app.);
-            textView.setTextColor(Color.YELLOW);*/
-            snackbar.show();
+            }
+            //story point 4
+            playSound(btn.getId());
+        });
+
+    }
+
+    private void playSound(int id) {
+        //step 1: get row from button id
+        if (getClickedButtonId(id)!=null){
+            Word word = words.get(getClickedButtonId(id));
+            if (word.getPronunciation()!=null){
+                System.out.println(word.getPronunciation().getUrl());
+                Utility.playPronunciation(word.getPronunciation().getUrl());
+            }
         }
-
 
     }
 
@@ -725,8 +478,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
+    void printButtonsId(){
+        System.out.println(R.id.button11);
+        System.out.println(R.id.button21);
+    }
     private void toggleBackground(Button button){
         Drawable normal = getDrawable(R.drawable.button_style_normal);
         Drawable currentDrawable = button.getBackground();

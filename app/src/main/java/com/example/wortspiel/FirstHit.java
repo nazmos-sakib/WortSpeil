@@ -6,23 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import com.example.wortspiel.Model.DataHolder;
-import com.example.wortspiel.Model.ReadData;
-import com.example.wortspiel.Model.Word;
-import com.example.wortspiel.Model.WriteData;
-import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
+import com.example.wortspiel.Data.ReadData;
+import com.example.wortspiel.Data.WriteData;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-
-import com.google.gson.reflect.TypeToken;
 
 
 public class FirstHit extends AppCompatActivity {

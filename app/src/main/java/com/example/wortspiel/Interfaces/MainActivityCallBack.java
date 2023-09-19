@@ -1,4 +1,4 @@
-package com.example.wortspiel;
+package com.example.wortspiel.Interfaces;
 
 import com.example.wortspiel.Model.Word;
 import com.google.common.collect.Multimap;

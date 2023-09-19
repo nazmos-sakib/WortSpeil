@@ -1,7 +1,9 @@
 package com.example.wortspiel.Model;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.example.wortspiel.Interfaces.Callback;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAudio;
@@ -11,6 +13,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import java.io.IOException;
 
 public class NetworkTask extends AsyncTask<Void, Void, String> {
+    private static final String TAG = "NetworkTask";
     private final String url = "https://www.howtopronounce.com/german/";
     private String word;
 
@@ -30,32 +33,48 @@ public class NetworkTask extends AsyncTask<Void, Void, String> {
             // Fetch the webpage
             HtmlPage page = getWebPage();
 
-            // Find the <div> with id "pronun"
-            HtmlDivision div = (HtmlDivision) page.getElementById("pronouncedContents");
+            // Check the HTTP status code of the response
+            int statusCode = page.getWebResponse().getStatusCode();
 
-            //System.out.println(div.toString());
+            if (statusCode == 404) {
+                // Handle the 404 error here
+                System.out.println("The page returned a 404 error (Page Not Found).");
+                callback.onCallback(null);
+            } else if (statusCode == 200) {
+                // The page was successfully retrieved, continue processing
+                // Find the <div> with id "pronun"
+                HtmlDivision div = (HtmlDivision) page.getElementById("pronouncedContents");
 
-            if (div != null) {
-                // Find the <a> element within the <div>
-                HtmlAudio audio = div.getFirstByXPath(".//audio");
+                if (div != null) {
+                    // Find the <a> element within the <div>
+                    HtmlAudio audio = div.getFirstByXPath(".//audio");
 
-                if (audio != null) {
-                    // Extract the src attribute from the <audio> element
-                    src = audio.getAttribute("src");
-                    System.out.println("Audio src: " + src);
+                    if (audio != null) {
+                        // Extract the src attribute from the <audio> element
+                        src = audio.getAttribute("src");
+                        System.out.println("Audio src: " + src);
 
-                    callback.onCallback(src);
+                        callback.onCallback(src);
+                    } else {
+                        System.out.println("No <audio> element found within the <div id=\"pronun\">.");
+                        callback.onCallback(null);
+                    }
+
                 } else {
-                    System.out.println("No <audio> element found within the <div id=\"pronun\">.");
+                    System.out.println("No <div id=\"pronun\"> found.");
+                    callback.onCallback(null);
                 }
 
             } else {
-                System.out.println("No <div id=\"pronun\"> found.");
+                // Handle other HTTP status codes if needed
+                System.out.println("The page returned an unexpected status code: " + statusCode);
+                callback.onCallback(null);
             }
 
-
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, "doInBackground: "+word);
+            //e.printStackTrace();
+            callback.onCallback(null);
         }
         return null;
     }
@@ -66,7 +85,7 @@ public class NetworkTask extends AsyncTask<Void, Void, String> {
         if (result != null) {
             // Update your UI with the parsed HTML content here
             System.out.println("onPostExecution");
-            callback.onCallback(src);
+            //callback.onCallback(src);
         } else {
             // Handle errors here
         }

@@ -3,11 +3,13 @@ package com.example.wortspiel.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.wortspiel.Model.Utility;
 import com.example.wortspiel.Model.Word;
 import com.example.wortspiel.R;
 
@@ -51,10 +53,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
 
         //setting click listener
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //passing the clicked position to the interface
+                if (recArrayList.get(holder.getAdapterPosition()).getPronunciation()!=null){
+                    if (recArrayList.get(holder.getAdapterPosition()).getPronunciation().getUrl()!=null){
+                        Utility.playPronunciation(recArrayList.get(holder.getAdapterPosition()).getPronunciation().getUrl());
+                    }
+                }
             }
         });
 
@@ -80,6 +87,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     public static class  ViewHolder extends RecyclerView.ViewHolder{
         TextView tv_germanWord, tv_EnglishWord, tv_partsOfSpeech, tv_tag;
+        ImageButton play;
 
         public ViewHolder(@NonNull View itemView){
             super(itemView);
@@ -87,6 +95,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             tv_EnglishWord = itemView.findViewById(R.id.tv_englishWord_card);
             tv_partsOfSpeech = itemView.findViewById(R.id.tv_partsOfSpeech_card);
             tv_tag = itemView.findViewById(R.id.tv_tag_card);
+            play = itemView.findViewById(R.id.imageButton_playSound);
         }
     }
 }

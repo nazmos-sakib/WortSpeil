@@ -1,22 +1,18 @@
-package com.example.wortspiel.Model;
+package com.example.wortspiel.Data;
 
 import android.content.Context;
 
-import com.example.wortspiel.MainActivityCallBack;
+import com.example.wortspiel.Interfaces.MainActivityCallBack;
+import com.example.wortspiel.Model.Word;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
