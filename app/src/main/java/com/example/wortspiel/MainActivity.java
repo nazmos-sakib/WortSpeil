@@ -4,12 +4,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -19,12 +24,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
+import com.example.wortspiel.Adapter.RecyclerAdapter;
 import com.example.wortspiel.Model.AudioDownloadTracker;
 import com.example.wortspiel.Model.DataHolder;
 import com.example.wortspiel.Model.Sound;
@@ -175,11 +184,12 @@ public class MainActivity extends AppCompatActivity {
         //details
         binding.includeToolbox.imvWordDetailsToolbar.setOnClickListener(View->{
             Log.d(TAG, "initButtons: AudioDownloadTracker-> "+AudioDownloadTracker.getValue());
-            if (AudioDownloadTracker.getValue()>=6){
+            /*if (AudioDownloadTracker.getValue()>=6){
                 Intent intent = new Intent(this, WordDetails.class);
                 intent.putExtra("words",words);
                 startActivity(intent);
-            }
+            }*/
+            showWordDetailsSheet();
         });
         // left columns -----------------------------
 
@@ -451,6 +461,45 @@ public class MainActivity extends AppCompatActivity {
                 Utility.playPronunciation(word.getPronunciation().getUrl());
             }
         }
+
+    }
+
+    private RecyclerAdapter recAdapter;
+
+    public void showWordDetailsSheet() {
+
+        final Dialog dialog = new Dialog(this);
+
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.top_sheet_layout_word_details);
+
+        ProgressBar progressBar = dialog.findViewById(R.id.progressBar_wordDetails);
+
+        RecyclerView recView_wordDetails = dialog.findViewById(R.id.recView_wordDetails);
+
+        dialog.findViewById(R.id.close_wordDetails).setOnClickListener(View->{
+            dialog.dismiss();
+        });
+
+        recAdapter =  new RecyclerAdapter();;
+        //get data from serve and set to the rec view holder
+        recAdapter.setAdapterData(new ArrayList<>(words.values()));
+        progressBar.setVisibility(View.INVISIBLE);
+
+        recView_wordDetails.setAdapter(recAdapter);
+        recView_wordDetails.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        Log.d(TAG, "setRecViewAdapter: "+recAdapter.getItemCount());
+
+
+
+        progressBar.setVisibility(View.INVISIBLE);
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.TOP);
 
     }
 
